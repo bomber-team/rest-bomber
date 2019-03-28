@@ -1,0 +1,5 @@
+{
+  "attack-address": "127.0.0.1",
+  "attack-port": "7070",
+  "buffer-size": 100
+}
