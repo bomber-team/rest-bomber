@@ -1,5 +1,14 @@
 {
-  "Name": "WordGenerator",
-  "Password": "PasswordGenerator",
-  "Nas-Ip": "IpGenerator"
+  "headers": {
+    "method": "GET",
+    "authority": "bla"
+  },
+  "body": {
+    "Name": "WordGenerator",
+    "Password": "PasswordGenerator",
+    "Nas-Ip": "IpGenerator",
+    "body": {
+      "test": "Test"
+    }
+  }
 }

@@ -1,0 +1,5 @@
+package attacker
+
+func attack() {
+
+}
