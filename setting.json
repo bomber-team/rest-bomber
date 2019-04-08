@@ -1,5 +1,11 @@
 {
-  "attack-address": "127.0.0.1",
-  "attack-port": "7070",
-  "buffer-size": 100
+  "attack-address": "localhost:7070",
+  "server-address": "localhost:8080",
+  "buffer-size": 100,
+  "type": "File",
+  "time-between-attacks": 1000,
+  "amount-attacks": 100,
+  "path-scenario-file": "./scenario.json",
+  "log-level": "debug",
+  "application-type": "application/json"
 }
