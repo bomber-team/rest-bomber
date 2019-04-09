@@ -8,7 +8,7 @@ import (
 
 type MacGenerator struct{}
 
-func (MacGenerator) GenRandomMac() string {
+func (MacGenerator) generateMac() string {
 	token := make([]byte, 6)
 	_, err := rand.Read(token)
 	if err != nil {
