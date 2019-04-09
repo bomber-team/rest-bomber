@@ -1,0 +1,14 @@
+{
+  "headers": {
+    "method": "GET",
+    "authority": "bla"
+  },
+  "body": {
+    "Name": "WordGenerator",
+    "Password": "PasswordGenerator",
+    "Nas-Ip": "IpGenerator",
+    "test": {
+      "test": "Test"
+    }
+  }
+}

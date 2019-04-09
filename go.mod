@@ -1,3 +1,3 @@
-module github.com/kostya05983/rest-bomber
+module rest-bomber
 
 go 1.12
