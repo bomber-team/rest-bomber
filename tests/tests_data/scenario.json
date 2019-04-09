@@ -6,9 +6,9 @@
   "body": {
     "Name": "WordGenerator",
     "Password": "PasswordGenerator",
-    "Nas-Ip": "IpGenerator",
+    "Nas-Ip": "IpGeneratorV6",
     "test": {
-      "test": "Test"
+      "test": "WordGenerator"
     }
   }
 }

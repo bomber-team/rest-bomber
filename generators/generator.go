@@ -1,36 +1,50 @@
 package generators
 
 type Generator struct {
+	IpGenerator
+	MacGenerator
+	WordGenerator
 }
 
-func (generator Generator) generate(parsed map[string]interface{}) {
-	for _, value := range parsed {
+//Recursively go through body to generate attribute
+func (generator Generator) GenerateForJsonBody(parsed map[string]interface{}, resultOut map[string]interface{}) {
+	for key, value := range parsed {
 		switch value.(type) {
+		case string:
+			resultOut[key] = generator.generateAttribute(value.(string))
+		case int:
+			resultOut[key] = generator.generateAttribute(value.(string))
 		case interface{}:
-		//handle another json object and aother and another ....
+			generator.GenerateForJsonBody(value.(map[string]interface{}), resultOut)
+		//handle another json object and another and another ....
 		default:
-			//generate
+			resultOut[key] = generator.generateAttribute(value.(string))
 		}
 	}
 }
 
 const (
-	WordGeneratoEnum      = "WordGenerator"
+	WordGeneratorEnum     = "WordGenerator"
 	PasswordGeneratorEnum = "PasswordGenerator"
-	IpGeneratorEnum       = "IpGenerator"
+	IpGeneratorV4Enum     = "IpGeneratorV4"
+	IpGeneratorV6Enum     = "IpGeneratorV6"
 	MacGeneratorEnum      = "MacGenerator"
 )
 
+//Switch between generator and assign value from user
 func (generator Generator) generateAttribute(valueName string) string {
 	switch valueName {
-	case WordGeneratoEnum:
-
-		return "Keks"
+	case WordGeneratorEnum:
+		return generator.generate()
 	case PasswordGeneratorEnum:
-		return "KEks password"
-	case IpGeneratorEnum:
-		return "Ip keks"
+		return "******^&*%"
+	case IpGeneratorV4Enum:
+		return generator.generateV4()
+	case IpGeneratorV6Enum:
+		return generator.generateV6()
 	case MacGeneratorEnum:
-		return "Mac Keks"
+		return generator.generateMac()
+	default:
+		return ""
 	}
 }
