@@ -2,27 +2,30 @@ package parser
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
+	"log"
 )
 
 type Parser struct {
+	Headers map[string]interface{}
+	Body    map[string]interface{}
+	Reader  Reader
 }
 
-func (parser Parser) parse(file string) map[string]interface{} {
-	// Open our jsonFile
-	jsonFile, err := os.Open(file)
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Successfully open" + file)
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
+const (
+	HEADERS = "headers"
+	BODY    = "body"
+)
 
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
+//Parse json
+func (parser *Parser) Parse(path string) {
+	res := parser.Reader.read(path)
 	var result map[string]interface{}
-	json.Unmarshal([]byte(byteValue), &result)
+	err := json.Unmarshal([]byte(res), &result)
+
+	if err != nil {
+		log.Println("Error when unmarshal json scenario", err)
+	}
+
+	parser.Headers = result[HEADERS].(map[string]interface{})
+	parser.Body = result[BODY].(map[string]interface{})
 }
