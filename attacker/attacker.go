@@ -1,5 +1,0 @@
-package attacker
-
-func attack() {
-
-}
