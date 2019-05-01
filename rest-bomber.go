@@ -4,26 +4,15 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/gorilla/mux"
 	"os"
+	"rest-bomber/models"
+
+	"github.com/gorilla/mux"
 )
 
 type Application struct {
-	conf   Configuration
+	conf   models.Configuration
 	router *mux.Router
-}
-
-//Configuration for attacker
-type Configuration struct {
-	AttackAddress      string `json:"attack-address"`
-	ServerAddress      string `json:"server-address"`
-	BufferSize         int    `json:"buffer-size"`
-	Type               string `json:"type"`
-	TimeBetweenAttacks string `json:"time-between-attacks"`
-	AmountAttacks      int    `json:"amount-attacks"`
-	PathScenarioFile   string `json:"path-scenario-file"`
-	LogLevel           string `json:"log_level"`
-	ApplicationType    string `json:"application-type"`
 }
 
 var app Application
@@ -33,7 +22,7 @@ func (app *Application) parseSettings(path string) {
 	file, _ := os.Open(path)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	configuration := Configuration{}
+	configuration := models.Configuration{}
 	err := decoder.Decode(&configuration)
 	if err != nil {
 		fmt.Println("error Parse:", err)
@@ -42,7 +31,7 @@ func (app *Application) parseSettings(path string) {
 }
 
 //Get path from command line arguments
-func (app Application) getPath() string {
+func (app *Application) getPath() string {
 	path := flag.String("conf", "./settings.json", "Path to file with settings")
 	flag.Parse()
 	return *path
