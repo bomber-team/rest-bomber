@@ -16,21 +16,21 @@ type Attacker struct {
 }
 
 //Realize algorithm of attack on server
-func (attacker Attacker) attack(conf models.Configuration) {
-	attacker.parser.Parse(conf.PathScenarioFile)
+func (atck *Attacker) attack(conf models.Configuration) {
+	atck.parser.Parse(conf.PathScenarioFile)
 
 	for i := 0; i < conf.AmountAttacks; i++ {
-		buffer := attacker.generateBufferSize(conf.BufferSize)
+		buffer := atck.generateBufferSize(conf.BufferSize)
 		for j := 0; j < conf.BufferSize; j++ {
-			go attacker.madeAttack(conf, buffer[j])
+			go atck.madeAttack(conf, buffer[j])
 		}
 	}
 }
 
 //Attack in goroutine
-func (attacker Attacker) madeAttack(conf models.Configuration, body map[string]interface{}) {
+func (atck *Attacker) madeAttack(conf models.Configuration, body map[string]interface{}) {
 	encodeBody, _ := json.Marshal(body)
-	req, err := http.NewRequest(attacker.parser.Headers["method"].(string),
+	req, err := http.NewRequest(atck.parser.Headers["method"].(string),
 		conf.ServerAddress, bytes.NewBuffer(encodeBody))
 	if err != nil {
 		println("Can't made request")
@@ -47,9 +47,9 @@ func (attacker Attacker) madeAttack(conf models.Configuration, body map[string]i
 }
 
 //Generate our buffer
-func (attacker Attacker) generateBufferSize(bufferSize int) (result []map[string]interface{}) {
+func (atck *Attacker) generateBufferSize(bufferSize int) (result []map[string]interface{}) {
 	for j := 0; j < bufferSize; j++ {
-		result = append(result, attacker.generator.GenerateForJsonBody(attacker.parser.Body))
+		result = append(result, atck.generator.GenerateForJSONBody(atck.parser.Body))
 	}
 	return
 }
