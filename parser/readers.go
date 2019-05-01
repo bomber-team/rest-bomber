@@ -15,7 +15,7 @@ type FileReader struct {
 
 //Read file from disk
 //returns string for future parsing
-func (reader FileReader) read(path string) string {
+func (reader *FileReader) read(path string) string {
 	// Open our jsonFile
 	jsonFile, err := os.Open(path)
 	// if we os.Open returns an error then handle it
@@ -34,6 +34,6 @@ type ApiReader struct{}
 
 //Read scenario from api, path address of server
 //returns string for future parsing
-func (reader ApiReader) read(path string) string {
+func (reader *ApiReader) read(path string) string {
 	return ""
 }

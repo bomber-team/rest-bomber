@@ -16,7 +16,7 @@ type Attacker struct {
 }
 
 //Realize algorithm of attack on server
-func (attacker Attacker) attack(conf models.Configuration) {
+func (attacker *Attacker) attack(conf models.Configuration) {
 	attacker.parser.Parse(conf.PathScenarioFile)
 
 	for i := 0; i < conf.AmountAttacks; i++ {
@@ -28,7 +28,7 @@ func (attacker Attacker) attack(conf models.Configuration) {
 }
 
 //Attack in goroutine
-func (attacker Attacker) madeAttack(conf models.Configuration, body map[string]interface{}) {
+func (attacker *Attacker) madeAttack(conf models.Configuration, body map[string]interface{}) {
 	encodeBody, _ := json.Marshal(body)
 	req, err := http.NewRequest(attacker.parser.Headers["method"].(string),
 		conf.ServerAddress, bytes.NewBuffer(encodeBody))
@@ -47,9 +47,9 @@ func (attacker Attacker) madeAttack(conf models.Configuration, body map[string]i
 }
 
 //Generate our buffer
-func (attacker Attacker) generateBufferSize(bufferSize int) (result []map[string]interface{}) {
+func (attacker *Attacker) generateBufferSize(bufferSize int) (result []map[string]interface{}) {
 	for j := 0; j < bufferSize; j++ {
-		result = append(result, attacker.generator.GenerateForJsonBody(attacker.parser.Body))
+		result = append(result, attacker.generator.GenerateForJSONBody(attacker.parser.Body))
 	}
 	return
 }
