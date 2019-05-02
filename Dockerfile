@@ -13,5 +13,7 @@ RUN go get -d -v
 RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/rest_bomber
 
 #Stage 2. Build small version of image
+FROM scratch
+
 COPY --from=builder /go/bin/rest_bomber /go/bin/rest_bomber
 ENTRYPOINT [ "/go/bin/rest_bomber" ]
