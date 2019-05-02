@@ -15,7 +15,7 @@ type FileReader struct {
 
 //Read file from disk
 //returns string for future parsing
-func (reader *FileReader) read(path string) string {
+func (reader *FileReader) read(path string) []byte {
 	// Open our jsonFile
 	jsonFile, err := os.Open(path)
 	// if we os.Open returns an error then handle it
@@ -27,7 +27,7 @@ func (reader *FileReader) read(path string) string {
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	return string(byteValue)
+	return byteValue
 }
 
 type ApiReader struct{}

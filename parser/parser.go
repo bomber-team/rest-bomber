@@ -5,9 +5,15 @@ import (
 	"log"
 )
 
+/*ParserPayload - enter packet*/
+type ParserPayload struct {
+	Headers map[string]interface{} `json:"headers"`
+	Body    map[string]interface{} `json:"body"`
+}
+
+/*Parser - structure for contain */
 type Parser struct {
-	Headers map[string]interface{}
-	Body    map[string]interface{}
+	Payload *ParserPayload
 	Reader  Reader
 }
 
@@ -16,16 +22,15 @@ const (
 	BODY    = "body"
 )
 
-//Parse json
+//Parse - parsing data from file path and preparing this object to ParserPayload
 func (parser *Parser) Parse(path string) {
 	res := parser.Reader.read(path)
-	var result map[string]interface{}
-	err := json.Unmarshal([]byte(res), &result)
 
-	if err != nil {
+	var payload ParserPayload
+	// var result map[string]interface{}
+
+	if err := json.Unmarshal([]byte(res), &payload); err != nil {
 		log.Println("Error when unmarshal json scenario", err)
 	}
-
-	parser.Headers = result[HEADERS].(map[string]interface{})
-	parser.Body = result[BODY].(map[string]interface{})
+	parser.Payload = &payload
 }
