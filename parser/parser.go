@@ -14,7 +14,7 @@ type ParserPayload struct {
 /*Parser - structure for contain */
 type Parser struct {
 	Payload *ParserPayload
-	Reader  Reader
+	Reader
 }
 
 const (
@@ -24,12 +24,11 @@ const (
 
 //Parse - parsing data from file path and preparing this object to ParserPayload
 func (parser *Parser) Parse(path string) {
-	res := parser.Reader.read(path)
+	res := parser.read(path)
 
 	var payload ParserPayload
-	// var result map[string]interface{}
 
-	if err := json.Unmarshal([]byte(res), &payload); err != nil {
+	if err := json.Unmarshal(res, &payload); err != nil {
 		log.Println("Error when unmarshal json scenario", err)
 	}
 	parser.Payload = &payload
