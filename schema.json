@@ -10,5 +10,8 @@
     "body": {
       "test": "Test"
     }
+  },
+  "request-params": {
+    "Test": "test"
   }
 }
