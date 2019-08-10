@@ -10,31 +10,35 @@ import (
 	"gitlab.com/truecord_team/common/contents"
 )
 
-/*ConfigurationRoute - route for setting configuration*/
-type ConfigurationRoute struct {
+/*ScenarioRoute - route for scenarious*/
+type ScenarioRoute struct {
 	EResponser *enhancer.Responser
 	Core       *core.Core
 }
 
 const (
-	configBomber = "/configurate"
+	scenario = "/scenario"
 )
 
-func (router *ConfigurationRoute) configureBomber(w http.ResponseWriter, request *http.Request) {
-	var payload *payloads.BomberConfig
+func (router *ScenarioRoute) create(w http.ResponseWriter, request *http.Request) {
+	var payload *payloads.ScenarioPayload
 	defer request.Body.Close()
 	if err := json.NewDecoder(request.Body).Decode(&payload); err != nil {
 		router.EResponser.ResponseWithError(w, request, http.StatusBadRequest, map[string]string{
 			"status":    "error",
-			"context":   "BomberConfigurationRouter",
+			"context":   "ScenarioRouter",
 			"errorCode": err.Error(),
 		}, contents.JSON)
 	}
-	// send to core new configuration for bomber
+	// send to core scenarious
+}
+
+func (router *ScenarioRoute) remove(w http.ResponseWriter, request *http.Request) {
 }
 
 /*SettingRouter - setting routes by handlers*/
-func (router *ConfigurationRoute) SettingRouter(rout *mux.Router) *mux.Router {
-	rout.HandleFunc(configBomber, router.configureBomber).Methods("POST")
+func (router *ScenarioRoute) SettingRouter(rout *mux.Router) *mux.Router {
+	rout.HandleFunc(scenario, router.create).Methods("POST")
+	rout.HandleFunc(scenario, router.remove).Methods("DELETE")
 	return rout
 }
