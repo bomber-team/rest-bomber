@@ -1,0 +1,31 @@
+{
+    "stages": [
+        {
+            "name": "test_create_object",
+            "scheme": "scheme1.json",
+            "address": "http://testserver:8888/testobject/create",
+            "amountRequests": 1,
+            "notifyAfterComplete": true,
+            "sendMetrics": false,
+            "logging": false,
+            "generatedStash": true
+        },
+        {
+            "name": "test_validate_creation",
+            "scheme": null,
+            "address": "http://testserver:8888/testobject/getall",
+            "amountRequests": 1,
+            "notifyAfterComplete": true,
+            "sendMetrics": false,
+            "logging": false,
+            "useGeneratedCash": true
+        },
+        {
+            "name": "test_highload",
+            "scheme": "scheme2.json",
+            "address": "http://testserver:8888/testobject/getall",
+            "amountRequests": 1000000,
+            "sendMetrics": true
+        }
+    ]
+}
