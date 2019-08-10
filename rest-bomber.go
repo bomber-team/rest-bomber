@@ -74,7 +74,7 @@ func init() {
 
 func handlingRoutineActions() {
 	log.Print("worker for device starting")
-	workJob int <- Routine
+	workJob <- Routine
 	log.Print("in channel handle new value")
 	switch workJob {
 	case payloads.ActionStartWorkID:
