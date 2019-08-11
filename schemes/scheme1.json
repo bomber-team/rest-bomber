@@ -1,0 +1,87 @@
+{
+  "headers": {
+    "method": "GET",
+    "authority": "bla"
+  },
+  "params": {
+    "request": [
+      {
+        "name": "test",
+        "generatorNeed": false,
+        "value": "testvalue"
+      },
+      {
+        "name": "user_find",
+        "generatorNeed": true,
+        "generator": "WordGenerator",
+        "generatorConfig": {
+          "min_letters": 15,
+          "max_letters": 50,
+          "alphabet": "abcdefghiklmonprstyvwxz"
+        }
+      }
+    ],
+    "body": [
+      {
+        "name": "name",
+        "generatorNeed": true,
+        "generator": "WordGenerator",
+        "generatorConfig": {
+          "min_letters": 5,
+          "max_letters": 25,
+          "language": "ru"
+        }
+      },
+      {
+        "name": "multiple_params",
+        "value": [
+          {
+            "name": "param1",
+            "value": [
+              {
+                "name": "param_turur_1",
+                "generatorNeed": true,
+                "generator": "WordGenerator"
+              }
+            ]
+          },
+          {
+            "name": "param2",
+            "generatorNeed": false,
+            "value": "test"
+          }
+        ]
+      },
+      {
+        "name": "password",
+        "generatorNeed": true,
+        "generator": "PasswordGenerator",
+        "generatorConfig": {
+          "min_letters": 4,
+          "max_letters": 50,
+          "alphabet": "abcdefghiklm0123456789!@#$^&%()_+"
+        }
+      },
+      {
+        "name": "nas_ip",
+        "generatorNeed": true,
+        "generator": "IpGenerator",
+        "generatorConfig": {
+          "firstSection": {
+            "min": 15,
+            "max": 15
+          },
+          "secondSection": {
+            "min": 50,
+            "max": 100
+          }
+        }
+      },
+      {
+        "name": "testField",
+        "generatorNeed": false,
+        "value": "tururu"
+      }
+    ]
+  }
+}
