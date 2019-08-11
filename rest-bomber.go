@@ -21,30 +21,7 @@ var router *mux.Router
 var app Application
 var Routine chan int
 
-// //Parse settings from file argument path to this settings from command line
-// func (app *Application) parseSettings(path string) {
-// 	file, _ := os.Open(path)
-// 	defer file.Close()
-// 	decoder := json.NewDecoder(file)
-// 	configuration := models.Configuration{}
-// 	err := decoder.Decode(&configuration)
-// 	if err != nil {
-// 		fmt.Println("error Parse:", err)
-// 	}
-// 	app.conf = configuration
-// }
-
-// //Get path from command line arguments
-// func (app *Application) getPath() string {
-// 	path := flag.String("conf", "./settings.json", "Path to file with settings")
-// 	flag.Parse()
-// 	return *path
-// }
-
 func init() {
-	// path := app.getPath()
-	// app.parseSettings(path)
-	// channelForJob := make(chan int, 1)
 	Routine := make(chan int)
 	responser := &enhancer.Responser{
 		CurrentContentTypeResponse: enhancer.JSON,
