@@ -1,17 +1,22 @@
 package discovery
 
 import (
+	"encoding/json"
 	"net/http"
+	"rest-bomber/configuration"
+	"rest-bomber/core"
 	"rest-bomber/enhancer"
+	"rest-bomber/payloads"
 
 	"github.com/gorilla/mux"
 	"gitlab.com/truecord_team/common/contents"
 )
 
-/*Discovery - route for discovering by main backend service*/
-type Discovery struct {
+/*DiscoveryRoute - route for discovering by main backend service*/
+type DiscoveryRoute struct {
 	EResponser          *enhancer.Responser
 	Core                *core.Core
+	GlobalConfig        *configuration.GlobalConfiguration // create new type, which contain config in main layer
 	IdentificatorBomber string
 }
 
@@ -20,15 +25,32 @@ const (
 )
 
 /*echo - send to calling service id of our bomber*/
-func (route *Discovery) echo(w http.ResponseWriter, request *http.Request) {
+func (route *DiscoveryRoute) echo(w http.ResponseWriter, request *http.Request) {
 	route.EResponser.ResponseWithJSON(w, request, http.StatusOK, map[string]string{
-		"stage": route.Core.State.CurrentStage,
-		"id":    route.IdentificatorBomber,
+		"id": route.IdentificatorBomber,
+	}, contents.JSON)
+}
+
+func (route *DiscoveryRoute) configureBomber(w http.ResponseWriter, request *http.Request) {
+	var payload *payloads.BomberConfig
+	defer request.Body.Close()
+	if err := json.NewDecoder(request.Body).Decode(&payload); err != nil {
+		route.EResponser.ResponseWithError(w, request, http.StatusBadRequest, map[string]string{
+			"status":  "error",
+			"context": "discovery_route",
+			"code":    err.Error(),
+		}, contents.JSON)
+	}
+	route.GlobalConfig.SetupBomberConfiguration(payload)
+	route.EResponser.ResponseWithJSON(w, request, http.StatusOK, map[string]string{
+		"status":  "ok",
+		"context": "discovery_route",
 	}, contents.JSON)
 }
 
 /*ConfigureDiscoveryRoute - configurating discovery route*/
-func (route *Discovery) ConfigureDiscoveryRoute(router *mux.Router) *mux.Router {
+func (route *DiscoveryRoute) ConfigureDiscoveryRoute(router *mux.Router) *mux.Router {
 	router.HandleFunc(echo, route.echo).Methods("GET")
+	router.HandleFunc(echo, route.configureBomber).Methods("POST")
 	return router
 }
