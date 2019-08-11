@@ -2,7 +2,7 @@
     "stages": [
         {
             "name": "test_create_object",
-            "scheme": "scheme1.json",
+            "scheme": "scheme1_id",
             "address": "http://testserver:8888/testobject/create",
             "configuration": {
                 "amountRequests": 1,
@@ -26,7 +26,7 @@
         },
         {
             "name": "test_highload",
-            "scheme": "scheme2.json",
+            "scheme": "scheme2_id",
             "address": "http://testserver:8888/testobject/getall",
             "configuration": {
                 "amountRequests": 1000000,
