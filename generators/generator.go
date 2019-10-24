@@ -1,6 +1,6 @@
 package generators
 
-import "restbomber/gparams"
+import "github.com/bomber-team/rest-bomber/generators/gparams"
 
 type (
 	/*Generator - main structure for Generators merged*/

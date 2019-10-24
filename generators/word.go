@@ -2,8 +2,9 @@ package generators
 
 import (
 	"math/rand"
-	"restbomber/gparams"
 	"time"
+
+	"github.com/bomber-team/rest-bomber/generators/gparams"
 )
 
 type (

@@ -2,9 +2,10 @@ package generators
 
 import (
 	"math/rand"
-	"restbomber/gparams"
 	"strings"
 	"time"
+
+	"github.com/bomber-team/rest-bomber/generators/gparams"
 )
 
 /*PasswordGenerator - generator for password by defined pattern*/

@@ -3,7 +3,9 @@ package core
 import (
 	"errors"
 	"log"
-	"restbomber/models"
+
+	"github.com/bomber-team/rest-bomber/models"
+	"github.com/bomber-team/rest-bomber/routes/payloads"
 )
 
 type (
@@ -11,6 +13,7 @@ type (
 	MemoryBomber struct {
 		Scenaries chan models.Scenario
 		Schemes   chan models.Scheme
+		WorkJob   chan int
 	}
 
 	/*Core - struct for containing current state of bomber*/
@@ -35,6 +38,36 @@ const (
 	scenarioEmpty = -1
 	stageInit     = -1
 )
+
+func (core *Core) handlingRoutineActions() {
+	log.Print("worker for device starting")
+	for {
+		var workJob int = <-core.Memory.WorkJob
+		log.Print("in channel handle new value")
+		switch workJob {
+		case payloads.ActionStartWorkID:
+			log.Print("start work")
+			break
+		case payloads.ActionStopWorkID:
+			log.Print("stop work")
+			break
+		case payloads.ActionRestartWorkID:
+			log.Print("Restart work")
+			break
+		// case payloads.ActionWriteConfigurationID:
+		// 	log.Print("start configration build")
+		// 	break
+		// case payloads.ActionWriteScenarioID:
+		// 	log.Print("start scenario build")
+		// 	break
+		// case payloads.ActionWriteSchemeID:
+		// 	log.Print("start scheme build")
+		// 	break
+		default:
+			continue
+		}
+	}
+}
 
 /*changeCurrentStageIndex - change current stage by last stage + 1*/
 func (bomb *StateBomber) changeCurrentStageIndex() error {

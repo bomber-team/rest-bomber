@@ -3,9 +3,9 @@ package routes
 import (
 	"encoding/json"
 	"net/http"
-	"restbomber/core"
-	"restbomber/routes/payloads"
 
+	"github.com/bomber-team/rest-bomber/core"
+	"github.com/bomber-team/rest-bomber/routes/payloads"
 	"github.com/gorilla/mux"
 )
 

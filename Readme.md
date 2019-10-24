@@ -1,14 +1,17 @@
-## About Project
-Project's aim is interesting highload testing with different protocols, easy deployment and gamification of working process.
+# Rest-Bomber
 
-We have modules to perform attacks
+Rest-Bomber - it's self hosted application, which can execute some stages with defining schemes of datas.
 
-Modules of web in react
+# Requiremets
 
-And module of web-server
+`go 1.13.1`
 
-## Aim of this module
+# Dockerize
 
-Module's aim to make intensive attack on server through rest. This module parse scenario from disk or server
-and generate packets, after than send them to server. 
+# Building
 
+# Developing
+
+# Main contributor
+
+#kubitre

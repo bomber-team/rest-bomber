@@ -3,12 +3,11 @@ package routes
 import (
 	"encoding/json"
 	"net/http"
-	"restbomber/core"
-	"restbomber/enhancer"
-	"restbomber/payloads"
 
+	"github.com/bomber-team/rest-bomber/core"
+	"github.com/bomber-team/rest-bomber/enhancer"
+	"github.com/bomber-team/rest-bomber/routes/payloads"
 	"github.com/gorilla/mux"
-	"gitlab.com/truecord_team/common/contents"
 )
 
 /*ConfigurationRoute - route for setting configuration*/
@@ -29,7 +28,7 @@ func (router *ConfigurationRoute) configureBomber(w http.ResponseWriter, request
 			"status":    "error",
 			"context":   "BomberConfigurationRouter",
 			"errorCode": err.Error(),
-		}, contents.JSON)
+		}, enhancer.JSON)
 	}
 	// send to core new configuration for bomber
 }

@@ -1,8 +1,5 @@
-module restbomber
+module github.com/bomber-team/rest-bomber
 
-go 1.12
+go 1.13
 
-require (
-	github.com/gorilla/mux v1.7.3
-	gitlab.com/truecord_team/common v0.0.2
-)
+require github.com/gorilla/mux v1.7.3

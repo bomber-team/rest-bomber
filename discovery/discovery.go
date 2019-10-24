@@ -3,11 +3,11 @@ package discovery
 import (
 	"log"
 	"net/http"
-	"restbomber/configuration"
-	"restbomber/core"
-	"restbomber/enhancer"
 	"strconv"
 
+	"github.com/bomber-team/rest-bomber/configuration"
+	"github.com/bomber-team/rest-bomber/core"
+	"github.com/bomber-team/rest-bomber/enhancer"
 	"github.com/gorilla/mux"
 )
 

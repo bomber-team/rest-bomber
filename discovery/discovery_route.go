@@ -3,13 +3,12 @@ package discovery
 import (
 	"encoding/json"
 	"net/http"
-	"restbomber/configuration"
-	"restbomber/core"
-	"restbomber/enhancer"
-	"restbomber/payloads"
 
+	"github.com/bomber-team/rest-bomber/configuration"
+	"github.com/bomber-team/rest-bomber/core"
+	"github.com/bomber-team/rest-bomber/enhancer"
+	"github.com/bomber-team/rest-bomber/routes/payloads"
 	"github.com/gorilla/mux"
-	"gitlab.com/truecord_team/common/contents"
 )
 
 /*DiscoveryRoute - route for discovering by main backend service*/

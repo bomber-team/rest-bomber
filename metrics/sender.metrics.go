@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"restbomber/configuration"
 
-	"gitlab.com/truecord_team/common/contents"
+	"github.com/bomber-team/rest-bomber/configuration"
 )
 
 type SenderMetrics struct {
