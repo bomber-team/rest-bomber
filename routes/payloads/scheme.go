@@ -1,6 +1,6 @@
 package payloads
 
-import "rest-bomber/models"
+import "restbomber/models"
 
 /*SchemePayload - payload for configuring datas models*/
 type SchemePayload struct {

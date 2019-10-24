@@ -3,9 +3,9 @@ package discovery
 import (
 	"log"
 	"net/http"
-	"rest-bomber/configuration"
-	"rest-bomber/core"
-	"rest-bomber/enhancer"
+	"restbomber/configuration"
+	"restbomber/core"
+	"restbomber/enhancer"
 	"strconv"
 
 	"github.com/gorilla/mux"

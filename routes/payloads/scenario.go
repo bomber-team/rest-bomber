@@ -1,6 +1,6 @@
 package payloads
 
-import "rest-bomber/models"
+import "restbomber/models"
 
 /*ScenarioPayload - payload for addding scenario for attac*/
 type ScenarioPayload struct {

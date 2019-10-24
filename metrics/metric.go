@@ -1,8 +1,11 @@
 package metrics
 
+import "time"
+
 type (
 	MetricsWithOneAttack struct {
 		Time int64
+		Date time.Time
 	}
 
 	MetricsStage struct {

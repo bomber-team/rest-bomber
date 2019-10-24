@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"rest-bomber/generators"
-	parser2 "rest-bomber/parser"
+	"restbomber/generators"
+	parser2 "restbomber/parser"
 	"testing"
 )
 

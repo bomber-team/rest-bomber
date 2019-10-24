@@ -3,10 +3,10 @@ package discovery
 import (
 	"encoding/json"
 	"net/http"
-	"rest-bomber/configuration"
-	"rest-bomber/core"
-	"rest-bomber/enhancer"
-	"rest-bomber/payloads"
+	"restbomber/configuration"
+	"restbomber/core"
+	"restbomber/enhancer"
+	"restbomber/payloads"
 
 	"github.com/gorilla/mux"
 	"gitlab.com/truecord_team/common/contents"

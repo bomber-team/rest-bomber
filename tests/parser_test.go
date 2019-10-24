@@ -1,7 +1,7 @@
 package tests
 
 import (
-	parser2 "rest-bomber/parser"
+	parser2 "restbomber/parser"
 	"testing"
 )
 
@@ -10,5 +10,5 @@ func Test_ReadFromFile(t *testing.T) {
 		Reader: parser2.FileReader{},
 	}
 
-	parser.Parse("/home/kostya05983/Projects/rest-bomber/tests/tests_data/scenario.json")
+	parser.Parse("/home/kostya05983/Projects/restbomber/tests/tests_data/scenario.json")
 }

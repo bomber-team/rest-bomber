@@ -21,6 +21,7 @@ preparing data for many request or one
 func (atck *Attacker) preparingData(amountRequest int) ([]map[string]interface{}, []map[string]string) {
 	atck.BodyMap = make([]map[string]interface{}, amountRequest)
 	atck.QueryMap = make([]map[string]string, amountRequest)
+	
 	return nil, nil
 }
 

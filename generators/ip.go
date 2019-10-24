@@ -3,7 +3,7 @@ package generators
 import (
 	"encoding/hex"
 	"math/rand"
-	"rest-bomber/gparams"
+	"restbomber/gparams"
 )
 
 type (

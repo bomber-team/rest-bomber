@@ -3,7 +3,7 @@ package core
 import (
 	"errors"
 	"log"
-	"rest-bomber/models"
+	"restbomber/models"
 )
 
 type (
@@ -72,10 +72,10 @@ func (bomb *StateBomber) ChangeCurrentState(state *StateBomber) {
 
 /*SchemeOfCurrentStageEmpty - check the current scheme is not empty*/
 func (bomb *StateBomber) SchemeOfCurrentStageEmpty() bool {
-	if bomb.CurrentScheme != nil {
-		return false
+	if bomb.CurrentScheme == nil {
+		return true
 	}
-	return true
+	return false
 }
 
 /*SetupNewEventOfWorkWithOneStage - task emmit start*/

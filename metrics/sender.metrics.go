@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"rest-bomber/configuration"
+	"restbomber/configuration"
 
 	"gitlab.com/truecord_team/common/contents"
 )

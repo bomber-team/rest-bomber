@@ -2,13 +2,12 @@ package routes
 
 import (
 	"net/http"
-	"rest-bomber/enhancer"
 
 	"github.com/gorilla/mux"
 )
 
 type WorkRoute struct {
-	EResponser *enhancer.Responser
+	// EResponser *enhancer.Responser
 }
 
 const (

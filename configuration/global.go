@@ -2,8 +2,8 @@ package configuration
 
 import (
 	"log"
-	"rest-bomber/discovery/configuration_discovery"
-	"rest-bomber/payloads"
+	"restbomber/discovery/configuration_discovery"
+	"restbomber/payloads"
 )
 
 /*GlobalConfiguration - config which contains all settings service*/

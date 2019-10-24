@@ -2,7 +2,7 @@ package generators
 
 import (
 	"math/rand"
-	"rest-bomber/gparams"
+	"restbomber/gparams"
 	"time"
 )
 

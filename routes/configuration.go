@@ -3,8 +3,9 @@ package routes
 import (
 	"encoding/json"
 	"net/http"
-	"rest-bomber/enhancer"
-	"rest-bomber/payloads"
+	"restbomber/core"
+	"restbomber/enhancer"
+	"restbomber/payloads"
 
 	"github.com/gorilla/mux"
 	"gitlab.com/truecord_team/common/contents"
