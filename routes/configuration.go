@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/bomber-team/rest-bomber/core"
 	"github.com/bomber-team/rest-bomber/enhancer"
 	"github.com/bomber-team/rest-bomber/routes/payloads"
 	"github.com/gorilla/mux"
@@ -13,12 +12,18 @@ import (
 /*ConfigurationRoute - route for setting configuration*/
 type ConfigurationRoute struct {
 	EResponser *enhancer.Responser
-	Core       *core.Core
+	TaskChan   *chan payloads.BomberConfig
 }
 
 const (
 	configBomber = "/configurate"
 )
+
+func NewConfigureRoute(response *enhancer.Responser) *ConfigurationRoute {
+	return &ConfigurationRoute{
+		EResponser: response,
+	}
+}
 
 func (router *ConfigurationRoute) configureBomber(w http.ResponseWriter, request *http.Request) {
 	var payload *payloads.BomberConfig
@@ -31,6 +36,12 @@ func (router *ConfigurationRoute) configureBomber(w http.ResponseWriter, request
 		}, enhancer.JSON)
 	}
 	// send to core new configuration for bomber
+	*(router.TaskChan) <- *payload
+	router.EResponser.ResponseWithError(w, request, http.StatusOK, map[string]string{
+		"status":  "success",
+		"context": "BomberConfigurationRouter.configureBomber",
+		"message": "configuration will setup",
+	}, enhancer.JSON)
 }
 
 /*SettingRouter - setting routes by handlers*/

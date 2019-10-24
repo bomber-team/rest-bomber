@@ -13,7 +13,7 @@ type Speaker struct {
 	MaxDatagramSize int32
 }
 
-func (speak *Speaker) runEcho() error {
+func (speak *Speaker) RunEcho() error {
 	addr, err := net.ResolveUDPAddr("udp", speak.Address)
 	if err != nil {
 		return err
