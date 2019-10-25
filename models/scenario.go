@@ -18,6 +18,7 @@ type (
 	/*StageConfiguration - config for stage*/
 	StageConfiguration struct {
 		AmountRequests      int  `json:"amountRequests"`
+		TimeoutOnOneRequest int `json:"timeout_one_request"`
 		TimeBetweenAttacks  int  `json:"timebetweenattacs"`
 		NotifyAfterComplete bool `json:"notifiAfterComplete"`
 		SendMetrics         bool `json:"sendMetrics"`

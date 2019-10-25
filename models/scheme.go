@@ -3,6 +3,7 @@ package models
 type (
 	/*Scheme - contain main info for datas in request*/
 	Scheme struct {
+		ID      string      `json:"id_scheme"`
 		Headers *HeadersMap `json:"headers"`
 		Params  *ParamsMap  `json:"params"`
 	}

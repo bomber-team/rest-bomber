@@ -1,4 +1,5 @@
 {
+  "id_scheme": "stage_1",
   "headers": {
     "method": "GET",
     "authority": "bla"

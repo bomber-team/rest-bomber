@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/bomber-team/rest-bomber/models"
 	"github.com/bomber-team/rest-bomber/routes/payloads"
 )
 
@@ -79,8 +80,8 @@ func (task *TaskBomber) completeWorkflow() {
 func (core *Core) preparedAttackMonitor() {
 	for {
 		<-core.Task.AttackPreparedInit
-		first, second := core.Attack.preparingData(core.Task.CurrentTask.Scenario.Stages[core.Task.CurrentState.CurrentStage].StageConfig.AmountRequests)
-		fmt.Println(first, second)
+		query, body := core.Attack.preparingData(core.Task.CurrentTask.Scenario.Stages[core.Task.CurrentState.CurrentStage].StageConfig.AmountRequests)
+		fmt.Println(query, body)
 	}
 }
 
@@ -156,6 +157,19 @@ func (task *TaskBomber) ExecuteStage() {
 		task.AttackPreparedInit <- true
 		task.CurrentState.CompletedCurrentStage <- true
 	}
+}
+
+func (task *TaskBomber) GetCurrentStage() *models.Stage {
+	return &task.CurrentTask.Scenario.Stages[task.CurrentState.CurrentStage]
+}
+
+func (task *TaskBomber) GetScheme(schemename string) *models.Scheme {
+	for _, val := range task.CurrentTask.Schemes {
+		if val.ID == schemename {
+			return val
+		}
+	}
+	return nil
 }
 
 // /*changeCurrentStageIndex - change current stage by last stage + 1*/
