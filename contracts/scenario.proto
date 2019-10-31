@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package bomber.contracts;
+
+option java_package = "org.bomber.contracts";
+option go_package = "github.com/bomber-team/rest-bomber/contracts";
+
+message Scenario {
+    repeated Stage stages = 1; 
+    StageConfiguration stageConfiguration = 2;
+}
+
+message Stage {
+    string name = 1;
+    int32 schemeId = 2;
+    string address = 3;
+    string requestMethod = 4;
+    Configuration configuration = 5;
+}
+
+message Configuration {
+    int32 amountRequests = 1;
+    int32 timeoutForOneRequest = 2; // in seconds
+    bool notifyAfterCompleted = 3;
+    bool sendMetrics = 4;
+    bool logging = 5;
+    bool generatedStash = 6;
+}
+
+message StageConfiguration {
+    int32 replay = 1;
+    bool replayAfterFailed = 2;
+}

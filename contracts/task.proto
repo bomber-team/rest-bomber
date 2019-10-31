@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bomber.contracts;
+
+import "scenario.proto";
+import "scheme.proto";
+
+option java_package = "org.bomber.contracts";
+option go_package = "github.com/bomber-team/rest-bomber/contracts";
+
+// send from backend to our bomber as executed task
+message Task {
+    repeated Scheme schemes = 1;
+    Stage stage = 2;
+}

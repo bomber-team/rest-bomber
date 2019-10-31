@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package bomber.contracts;
+
+option java_package = "org.bomber.contracts";
+option go_package = "github.com/bomber-team/rest-bomber/contracts";
+
+message Scheme {
+    int32 idScheme = 1;
+    Headers headers = 2;
+    repeated Request request = 3;
+    repeated Request body = 4;
+}
+
+message Headers {
+    string method = 1;
+    string auth = 2;
+    string contentType = 3;
+    CorsType corsType = 4;
+}
+
+enum CorsType {
+    NOCORS = 0;
+    CORS = 1;
+}
+
+message Request {
+    string name = 1;
+    bool generator_need = 2;
+    oneof result {
+        string value = 3;
+        Request inlineRequest = 4;
+    }
+    Generator generator = 5;
+    GeneratorConfig generatorConfig = 6;
+}
+
+enum Generator {
+    WORDGENERATOR = 0;
+    PASSWORDGENERATOR = 1;
+    IPGENERATOR = 2;
+    MACGENERATOR = 3;
+    REGEXPGENERATOR = 4;
+}
+
+message GeneratorConfig {
+    oneof res {
+        IpGeneratorConfig ipGeneratorConfig = 1;
+        WordGeneratorConfig wordGeneratorConfig = 2;
+        PasswordGeneratorConfig passwordGeneratorConfig = 3;
+        RegexpConfig regexpConfig = 4;
+    }
+}
+
+message Section {
+    int32 min = 1;
+    int32 max = 2;
+}
+
+message IpGeneratorConfig {
+
+    Section firstSection = 1;
+    Section secondSection = 2;
+    Section thirdSection = 3;
+    Section fourthSection = 4;
+}
+
+message WordGeneratorConfig {
+    int32 minLetters = 1;
+    int32 maxLetters = 2;
+    Language language = 3;
+}
+
+message PasswordGeneratorConfig {
+    string alphabet = 1;
+    int32 amountChars = 2;
+}
+
+message RegexpConfig {
+    string pattern = 1;
+}
+
+enum Language {
+    RU = 0;
+    EN = 1;
+}

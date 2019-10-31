@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bomber.contracts;
+
+option java_package = "org.bomber.contracts";
+option go_package = "github.com/bomber-team/rest-bomber/contracts";
+
+// send from main server to one instance bomber
+message Configuration {
+    string metricAddress = 1;
+    string serverAddress = 2;
+}
+
+// send to main server on multicast
+message BomberConfig {
+    string bomberId = 1;
+}
