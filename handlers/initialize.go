@@ -1,31 +1,32 @@
 package handlers
 
+import (
+	"github.com/bomber-team/rest-bomber/core"
+	"github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
+)
+
 type CoreHandlers struct {
-	connection *nats.Conn
-	currentHandlers []ITopicHandler
+	connection      *nats.Conn
+	currentHandlers []IHandlerTopic
 }
 
-func NewCoreHandlers() (*CoreHandlers, error) {
-	parsedConfigureService, errParsing := nats_listener.ParseConfiguration()
-	if errParsing != nil {
-		logrus.Error("can not parsed configuration: ", errParsing)
-		return nil, errParsing
-	}
-	connection, errConnection := nats_listener.CreateNewConnectionToNats(parsedConfigureService)
-	if errConnection != nil {
-		logrus.Error("Can not connected to nats: ", errConnection)
-		return nil, errConnection
-	}
+func NewCoreHandlers(connection *nats.Conn, core *core.Core) (*CoreHandlers, error) {
 	return &CoreHandlers{
 		connection: connection,
-		currentHandlers: []ITopicHandler {
-			newTopicHandler(connection)
-		}
+		currentHandlers: []IHandlerTopic{
+			newTopicHandler(connection, core),
+		},
 	}, nil
 }
 
-func (core *CoreHandlers) InitTopicsHandlers() error {
+func (core *CoreHandlers) InitTopicsHandlers(signal chan int) error {
+	logrus.Info("Starting configuring topic handlers")
 	for _, handler := range core.currentHandlers {
-		handler.Configuration()
+		if err := handler.Configuration(signal); err != nil {
+			return err
+		}
 	}
+	logrus.Info("Completed configuring topic handlers")
+	return nil
 }

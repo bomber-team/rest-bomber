@@ -1,5 +1,5 @@
 package handlers
 
 type IHandlerTopic interface {
-	Configuration() error
+	Configuration(signal chan int) error
 }
