@@ -2,16 +2,14 @@
 
 Rest-Bomber - it's self hosted application, which can execute some stages with defining schemes of datas.
 
-# Requiremets
+## Requiremets
 
-`go 1.13.1`
+`go 1.15.2`
 
-# Dockerize
+## Dockerize
 
-# Building
+## Building
 
-# Developing
+## Developing
 
-# Main contributor
-
-#kubitre
+## Main contributor
