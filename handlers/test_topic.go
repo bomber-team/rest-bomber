@@ -14,18 +14,17 @@ type TestTopicHandler struct {
 }
 
 const (
-	testTopicName = "test.1"
+	testTopicName = "test."
 )
 
-func newTopicHandler(conn *nats.Conn, core *core.Core) *TestTopicHandler {
+func newTopicHandler(conn *nats.Conn, core *core.Core, config *nats_listener.NatsConnectionConfiguration) *TestTopicHandler {
 	return &TestTopicHandler{
-		subscriber: nats_listener.NewSubscriber(conn, testTopicName),
+		subscriber: nats_listener.NewSubscriber(conn, testTopicName+config.CurrentServiceID),
 		core:       core,
 	}
 }
 
 func (handl *TestTopicHandler) Configuration(signal chan int) error {
-
 	errSubscription := handl.subscriber.Subscribe(handl.handle)
 	if errSubscription != nil {
 		return errSubscription

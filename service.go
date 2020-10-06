@@ -23,7 +23,7 @@ func main() {
 		panic(errConnection)
 	}
 	core := core.NewCore(connection)
-	coreHandler, errorHandling := handlers.NewCoreHandlers(connection, core)
+	coreHandler, errorHandling := handlers.NewCoreHandlers(connection, core, parsedConfigureService)
 	if errorHandling != nil {
 		logrus.Panic("Can not initialize consuming handler")
 	}

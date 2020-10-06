@@ -1,5 +1,10 @@
+github.com/bomber-team/bomber-proto-contracts v0.0.0-20201006111503-39773949f443 h1:E3DqnBZuwSRESgbBonsE5WH2bRzCG92vdACID4o3Dyg=
+github.com/bomber-team/bomber-proto-contracts/golang v0.0.0-20201006111503-39773949f443 h1:VMNcLixV+p0SN1iuj7RtmNQONqJ+LRoiKT9sQpccBzc=
+github.com/bomber-team/bomber-proto-contracts/golang v0.0.0-20201006111503-39773949f443/go.mod h1:TR4fcXJGbB0RrXT+HQuQwJYliES4T5Bx+m3H0PguM+E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/docker/distribution v2.7.1+incompatible h1:a5mlkVzth6W5A4fOsS3D2EO5BUmsJpcB+cRlLU7cSug=
+github.com/docker/distribution v2.7.1+incompatible/go.mod h1:J2gT2udsDAN96Uj4KfcMRqY0/ypR+oyYUYmja8H+y+w=
 github.com/goreflect/go_hocon v0.0.2 h1:8r5kdjE4iG+Hfv1qScSR2LUNcwUwTmFdqpCN/yKY/uA=
 github.com/goreflect/go_hocon v0.0.2/go.mod h1:Pw26F1wCoERtcchtIfjcTLO/wb9slw11ZSCvUbOgrYU=
 github.com/goreflect/gostructor v0.4.1-alpha h1:oTMuAFfw5odRrszs0Shizs/UHiHYokSqvirI1qK8860=
