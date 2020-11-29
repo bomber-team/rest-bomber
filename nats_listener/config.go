@@ -1,6 +1,7 @@
 package nats_listener
 
 import (
+	"github.com/google/uuid"
 	"github.com/goreflect/gostructor"
 	"github.com/sirupsen/logrus"
 )
@@ -20,4 +21,13 @@ func ParseConfiguration() (*NatsConnectionConfiguration, error) {
 		return nil, errorConfiguration
 	}
 	return parsed.(*NatsConnectionConfiguration), nil
+}
+
+func (config *NatsConnectionConfiguration) CorrectedGeneratingHandlerName() {
+	uid, err := uuid.NewRandom()
+	if err != nil {
+		logrus.Error("Can not generating new handler name: ", err)
+		return
+	}
+	config.CurrentServiceID = uid.String()
 }
