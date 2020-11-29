@@ -17,7 +17,8 @@ func NewCoreHandlers(connection *nats.Conn, core *core.Core, config *nats_listen
 	return &CoreHandlers{
 		connection: connection,
 		currentHandlers: []IHandlerTopic{
-			newTopicHandler(connection, core, config),
+			newTaskTopicHandler(connection, core, config),
+			newStarterTaskTopicHandler(connection, core, config),
 		},
 	}, nil
 }

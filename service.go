@@ -17,6 +17,7 @@ func main() {
 		logrus.Error("can not parsed configuration: ", errParsing)
 		panic(errParsing)
 	}
+	parsedConfigureService.CorrectedGeneratingHandlerName()
 	connection, errConnection := nats_listener.CreateNewConnectionToNats(parsedConfigureService)
 	if errConnection != nil {
 		logrus.Error("Can not connected to nats: ", errConnection)
