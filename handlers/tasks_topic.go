@@ -15,7 +15,7 @@ type TaskTopicHandler struct {
 }
 
 const (
-	taskTopicName = "bombers.tasks."
+	taskTopicName = "bombers.tasks"
 )
 
 func newTaskTopicHandler(conn *nats.Conn, core *core.Core, config *nats_listener.NatsConnectionConfiguration) *TaskTopicHandler {
