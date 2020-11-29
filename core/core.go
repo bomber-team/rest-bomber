@@ -32,7 +32,7 @@ func (core *Core) CheckReady() bool {
 }
 
 const (
-	bomberStatus = "bomber.status"
+	topicName    = "bomber.results"
 	bomberResult = "bomber.result"
 )
 
@@ -211,7 +211,7 @@ func (core *Core) changeStatusBomber(status system.StatusBomber) {
 	if errMarshaling != nil {
 		logrus.Error("Can not marshaled payload for bomber server: ", errMarshaling)
 	}
-	if errPublish := core.publisher.PublishNewMessage(bomberStatus, data); errPublish != nil {
+	if errPublish := core.publisher.PublishNewMessage(topicName, data); errPublish != nil {
 		logrus.Error("Can not publish message into broker nats")
 	}
 }
