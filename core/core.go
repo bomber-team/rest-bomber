@@ -255,7 +255,7 @@ func (core *Core) FormResultAttack() *rest_contracts.BomberResult {
 func (core *Core) Start(task rest_contracts.Task, wg *sync.WaitGroup) {
 	taskRunner := make(chan RequestPayload, currentWorkers)
 	completed := make(chan bool)
-	taskResult := make(chan SliceResult, 100)
+	taskResult := make(chan SliceResult, currentWorkers)
 	var index int64 = 0
 	for ; index < task.Script.Config.Rps*task.Script.Config.Time; index++ {
 		go core.runWorkers(taskRunner, completed, taskResult)
