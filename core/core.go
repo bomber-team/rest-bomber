@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/bomber-team/bomber-proto-contracts/golang/rest_contracts"
 	"github.com/bomber-team/bomber-proto-contracts/golang/system"
+	"github.com/bomber-team/rest-bomber/generators"
 	"github.com/bomber-team/rest-bomber/nats_listener"
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
@@ -56,7 +58,16 @@ func (core *Core) preparingBody(bodyParams []*rest_contracts.BodyParam) ([]byte,
 	var resultBody map[string]interface{}
 	for _, value := range bodyParams {
 		if value.IsGenerated {
-			continue // TODO: Need change to call generating
+			switch x := value.Config.Res.(type) {
+			case *rest_contracts.GeneratorConfig_WordGeneratorConfig:
+				resultBody[value.Name] = generators.GenerateWord(*x)
+			case *rest_contracts.GeneratorConfig_DigitGeneratorConfig:
+				resultBody[value.Name] = generators.GenerateDigits(*x)
+			case *rest_contracts.GeneratorConfig_RegexpConfig:
+				resultBody[value.Name] = generators.GenerateByRegexp(x)
+			default:
+				continue
+			}
 		} else {
 			resultBody[value.Name] = value
 		}
@@ -73,9 +84,20 @@ func (core *Core) prepareRequestParams(requestParams []*rest_contracts.RequestPa
 	var resultUrlQueries string = "?"
 	for _, value := range requestParams {
 		if value.IsGeneratorNeed {
-			continue // TODO: need change to call generating
+			switch x := value.GeneratorConfig.Res.(type) {
+			case *rest_contracts.GeneratorConfig_WordGeneratorConfig:
+				resultUrlQueries += value.Name + "=" + generators.GenerateWord(*x) + "&"
+			case *rest_contracts.GeneratorConfig_DigitGeneratorConfig:
+				generatedValue := generators.GenerateDigits(*x)
+
+				resultUrlQueries += value.Name + "=" + strconv.Itoa(int(generatedValue)) + "&"
+			case *rest_contracts.GeneratorConfig_RegexpConfig:
+				resultUrlQueries += value.Name + "=" + generators.GenerateByRegexp(x) + "&"
+			default:
+				continue
+			}
 		} else {
-			resultUrlQueries += value.Name + "=" + value.Value
+			resultUrlQueries += value.Name + "=" + value.Value + "&"
 		}
 	}
 	return resultUrlQueries

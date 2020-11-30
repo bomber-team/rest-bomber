@@ -66,6 +66,7 @@ func (handl *TaskTopicHandler) handle(message *nats.Msg) {
 	handl.core.PreparingData(paylaod)
 	logrus.Info("Completed builded Requests for attack")
 	formatResultStatusTask(paylaod.FormId, CONFIGURED, handl.publisher)
+	handl.publisher.PublishNewMessage(taskTopicStarter, message.Data)
 }
 
 func formatResultStatusTask(taskId string, status int, publisher *nats_listener.Publisher) {
