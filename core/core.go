@@ -1,10 +1,10 @@
 package core
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/bomber-team/bomber-proto-contracts/golang/rest_contracts"
@@ -13,20 +13,29 @@ import (
 	"github.com/bomber-team/rest-bomber/nats_listener"
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
+	"github.com/valyala/fasthttp"
 )
 
 type Core struct {
 	publisher              *nats_listener.Publisher
 	config                 *nats_listener.NatsConnectionConfiguration
 	currentStatusBomber    system.StatusBomber
-	dataAttack             []http.Request
-	httpClient             *http.Client
+	dataAttack             []fasthttp.Request
+	httpClient             *http.Transport
 	resultsAttack          map[int32]int64 // amount statuses per status
 	resultTimeouts         int64           // amount time out requests
 	resultTimesForRequests []int64         // amount ms for one request
 	attackReady            bool            // ready for attack?
 	bomberIp               string
 	formId                 string
+}
+
+var saveResults sync.Mutex
+
+type SliceResult struct {
+	Status      int
+	TimeElapsed int64
+	Timeout     bool
 }
 
 func (core *Core) CheckReady() bool {
@@ -42,20 +51,40 @@ const (
 	currentWorkers = 100
 )
 
-func NewCore(conn *nats.Conn) *Core {
+const (
+	MaxIdleConnections int = 20
+	RequestTimeout     int = 5
+)
+
+// createHTTPClient for connection re-use
+func createHTTPClient() *http.Client {
+	client := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConnsPerHost: MaxIdleConnections,
+		},
+		Timeout: time.Second * 30,
+	}
+
+	return client
+}
+
+func NewCore(conn *nats.Conn, bomberIp string) *Core {
 	return &Core{
-		publisher:           nats_listener.NewPublisher(conn),
-		currentStatusBomber: system.StatusBomber_UP,
+		publisher:              nats_listener.NewPublisher(conn),
+		currentStatusBomber:    system.StatusBomber_UP,
+		httpClient:             &http.Transport{},
+		bomberIp:               bomberIp,
+		resultTimesForRequests: []int64{},
 	}
 }
 
 type RequestPayload struct {
-	Request *http.Request
+	Request *fasthttp.Request
 	Id      int
 }
 
 func (core *Core) preparingBody(bodyParams []*rest_contracts.BodyParam) ([]byte, error) {
-	var resultBody map[string]interface{}
+	var resultBody map[string]interface{} = nil
 	for _, value := range bodyParams {
 		if value.IsGenerated {
 			switch x := value.Config.Res.(type) {
@@ -81,52 +110,55 @@ func (core *Core) preparingBody(bodyParams []*rest_contracts.BodyParam) ([]byte,
 }
 
 func (core *Core) prepareRequestParams(requestParams []*rest_contracts.RequestParam) string {
+	if len(requestParams) == 0 {
+		return ""
+	}
 	var resultUrlQueries string = "?"
-	for _, value := range requestParams {
+	for index, value := range requestParams {
 		if value.IsGeneratorNeed {
 			switch x := value.GeneratorConfig.Res.(type) {
 			case *rest_contracts.GeneratorConfig_WordGeneratorConfig:
-				resultUrlQueries += value.Name + "=" + generators.GenerateWord(*x) + "&"
+				resultUrlQueries += value.Name + "=" + generators.GenerateWord(*x)
 			case *rest_contracts.GeneratorConfig_DigitGeneratorConfig:
 				generatedValue := generators.GenerateDigits(*x)
 
-				resultUrlQueries += value.Name + "=" + strconv.Itoa(int(generatedValue)) + "&"
+				resultUrlQueries += value.Name + "=" + strconv.Itoa(int(generatedValue))
 			case *rest_contracts.GeneratorConfig_RegexpConfig:
-				resultUrlQueries += value.Name + "=" + generators.GenerateByRegexp(x) + "&"
+				resultUrlQueries += value.Name + "=" + generators.GenerateByRegexp(x)
 			default:
 				continue
 			}
 		} else {
-			resultUrlQueries += value.Name + "=" + value.Value + "&"
+			resultUrlQueries += value.Name + "=" + value.Value
+		}
+		if index != len(requestParams)-1 {
+			resultUrlQueries += "&"
 		}
 	}
 	return resultUrlQueries
 }
 
-func (core *Core) enhancedHeadersInRequest(request *http.Request, task rest_contracts.Task) *http.Request {
+func (core *Core) enhancedHeadersInRequest(request *fasthttp.Request, task rest_contracts.Task) *fasthttp.Request {
 	for key, value := range task.Schema.Headers {
 		request.Header.Set(key, value)
 	}
 	return request
 }
 
-func (core *Core) preparingRequest(restTask *rest_contracts.Task) (*http.Request, error) {
+func (core *Core) preparingRequest(restTask *rest_contracts.Task) (*fasthttp.Request, error) {
 	body, err := core.preparingBody(restTask.Schema.Body)
 	if err != nil {
 		return nil, err
 	}
-	reader := bytes.NewReader(body)
 	urlParams := core.prepareRequestParams(restTask.Schema.Request)
-	newRequest, err := http.NewRequest(restTask.Script.RequestMethod, restTask.Script.Address+urlParams, reader)
-	if err != nil {
-		logrus.Error("Error while building new request")
-		return nil, err
-	}
-	return core.enhancedHeadersInRequest(newRequest, *restTask), nil
+	req := fasthttp.AcquireRequest()
+	req.SetBody(body)
+	req.SetRequestURI(restTask.Script.Address + urlParams)
+	return core.enhancedHeadersInRequest(req, *restTask), nil
 }
 
 func (core *Core) cleanCurrentResults() {
-	core.dataAttack = []http.Request{}
+	core.dataAttack = []fasthttp.Request{}
 	core.resultTimeouts = 0
 	core.resultTimesForRequests = []int64{}
 	core.resultsAttack = map[int32]int64{}
@@ -137,8 +169,7 @@ func (core *Core) PreparingData(task rest_contracts.Task) {
 	core.cleanCurrentResults()
 	var index int64 = 0
 	amountRequests := task.Script.Config.Rps * task.Script.Config.Time
-	resultSliceRequests := make([]http.Request, amountRequests)
-	core.resultTimesForRequests = make([]int64, amountRequests)
+	resultSliceRequests := make([]fasthttp.Request, amountRequests)
 	for ; index < amountRequests; index++ {
 		newRequest, errFormRequest := core.preparingRequest(&task)
 		if errFormRequest != nil {
@@ -148,30 +179,59 @@ func (core *Core) PreparingData(task rest_contracts.Task) {
 		resultSliceRequests[index] = *newRequest
 	}
 	core.dataAttack = resultSliceRequests
+	core.formId = task.FormId
 	core.attackReady = true
 }
 
-func (core *Core) runWorkers(task chan RequestPayload, completed chan bool) {
+func (core *Core) resultHandler(resultChan chan SliceResult, completed chan bool, wg *sync.WaitGroup) {
+	var countRequests int = 0
+	logrus.Info("All requests: ", len(core.dataAttack))
 	for {
-		select {
-		case newRequest := <-task:
-			timeStart := time.Now()
-			resp, err := core.httpClient.Do(newRequest.Request)
-			if err != nil {
-				logrus.Error("Error while executing request: ", err)
-				core.resultTimeouts++
-				continue
-			}
-			durationTime := time.Since(timeStart)
-			core.resultsAttack[int32(resp.StatusCode)]++
-			core.resultTimesForRequests[newRequest.Id] = durationTime.Milliseconds()
-		case <-completed:
-			logrus.Info("Completed requests")
+		newRes := <-resultChan
+		logrus.Info("Start preparing result: ", newRes)
+		countRequests++
+		saveResults.Lock()
+		if newRes.Timeout {
+			core.resultTimeouts++
+		} else {
+			core.resultsAttack[int32(newRes.Status)]++
+			core.resultTimesForRequests = append(core.resultTimesForRequests, newRes.TimeElapsed)
+		}
+		saveResults.Unlock()
+		if countRequests == len(core.dataAttack)-1 {
+			completed <- true
+			wg.Done()
+			return
 		}
 	}
 }
 
-func (core *Core) startAttack(taskRunner chan RequestPayload, completed chan bool) error {
+func (core *Core) runWorkers(task chan RequestPayload, completed chan bool, resultChan chan SliceResult) {
+	for {
+		select {
+		case newRequest := <-task:
+			resp := fasthttp.AcquireResponse()
+			timeStart := time.Now()
+			if err := fasthttp.Do(newRequest.Request, resp); err != nil {
+				logrus.Error("Error while request: ", err)
+				resultChan <- SliceResult{
+					Timeout: true,
+				}
+				continue
+			}
+			durationTime := time.Since(timeStart)
+			resultChan <- SliceResult{
+				Status:      resp.StatusCode(),
+				TimeElapsed: durationTime.Nanoseconds(),
+			}
+		case <-completed:
+			logrus.Info("Completed requests")
+			return
+		}
+	}
+}
+
+func (core *Core) startAttack(taskRunner chan RequestPayload) error {
 	core.currentStatusBomber = system.StatusBomber_WORKING
 	for index, request := range core.dataAttack {
 		taskRunner <- RequestPayload{
@@ -179,7 +239,6 @@ func (core *Core) startAttack(taskRunner chan RequestPayload, completed chan boo
 			Id:      index,
 		}
 	}
-	completed <- true
 	return nil
 }
 
@@ -193,14 +252,19 @@ func (core *Core) FormResultAttack() *rest_contracts.BomberResult {
 	}
 }
 
-func (core *Core) Start(task rest_contracts.Task) {
+func (core *Core) Start(task rest_contracts.Task, wg *sync.WaitGroup) {
 	taskRunner := make(chan RequestPayload, currentWorkers)
 	completed := make(chan bool)
+	taskResult := make(chan SliceResult, 100)
 	var index int64 = 0
 	for ; index < task.Script.Config.Rps*task.Script.Config.Time; index++ {
-		go core.runWorkers(taskRunner, completed)
+		go core.runWorkers(taskRunner, completed, taskResult)
 	}
-	core.startAttack(taskRunner, completed)
+	go core.resultHandler(taskResult, completed, wg)
+	core.startAttack(taskRunner)
+	logrus.Info("Attack was started")
+	<-completed
+	logrus.Info("Attack was completed")
 }
 
 func (core *Core) InitializeService() {

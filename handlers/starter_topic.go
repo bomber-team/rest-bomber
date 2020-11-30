@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
+	"sync"
 
 	"github.com/bomber-team/bomber-proto-contracts/golang/rest_contracts"
 	"github.com/bomber-team/rest-bomber/core"
@@ -53,10 +53,14 @@ func (handl *StarterTopicHandler) handle(message *nats.Msg) {
 	logrus.Info("Starting checking reading for attack: ", paylaod.FormId)
 	if handl.core.CheckReady() {
 		logrus.Info("Attack REady")
-		handl.core.Start(paylaod)
+		var wg sync.WaitGroup
+		wg.Add(1)
+		handl.core.Start(paylaod, &wg)
+		wg.Wait()
 		logrus.Info("Attacks completed. Start extracting data")
 		result := handl.core.FormResultAttack()
-		marshaledData, err := json.Marshal(result)
+		logrus.Info("Current attack result: ", result)
+		marshaledData, err := result.Marshal()
 		if err != nil {
 			logrus.Error("Error marshaled result attack: ", err)
 			formatResultStatusTask(paylaod.FormId, ERROR_ATTACK, handl.publisher)

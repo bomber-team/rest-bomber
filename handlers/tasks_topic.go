@@ -15,6 +15,7 @@ type TaskTopicHandler struct {
 	publisher  *nats_listener.Publisher
 	core       *core.Core
 	bracket    chan int
+	config     *nats_listener.NatsConnectionConfiguration
 }
 
 const (
@@ -39,6 +40,7 @@ func newTaskTopicHandler(conn *nats.Conn, core *core.Core, config *nats_listener
 		subscriber: nats_listener.NewSubscriber(conn, taskTopicName+config.CurrentServiceID),
 		publisher:  nats_listener.NewPublisher(conn),
 		core:       core,
+		config:     config,
 	}
 }
 
@@ -66,7 +68,7 @@ func (handl *TaskTopicHandler) handle(message *nats.Msg) {
 	handl.core.PreparingData(paylaod)
 	logrus.Info("Completed builded Requests for attack")
 	formatResultStatusTask(paylaod.FormId, CONFIGURED, handl.publisher)
-	handl.publisher.PublishNewMessage(taskTopicStarter, message.Data)
+	handl.publisher.PublishNewMessage(taskTopicStarter+handl.config.CurrentServiceID, message.Data)
 }
 
 func formatResultStatusTask(taskId string, status int, publisher *nats_listener.Publisher) {
