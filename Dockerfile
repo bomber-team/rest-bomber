@@ -3,14 +3,14 @@ FROM golang:alpine as builder
 
 RUN apk update && apk add --no-cache git
 
-WORKDIR $GOPATH/src/mypackage/myapp
+WORKDIR /app
 COPY . .
 
 RUN go get -d -v
 
-RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/restbomber
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o service
 
 FROM scratch
-
-COPY --from=builder /go/bin/restbomber /go/bin/restbomber
-ENTRYPOINT [ "/go/bin/restbomber" ]
+COPY --from=builder /app/service /
+EXPOSE 9999
+CMD ["/service"]
