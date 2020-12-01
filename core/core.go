@@ -219,7 +219,8 @@ func (core *Core) runWorkers(config Config, task chan RequestPayload, completed 
 	cli := fasthttp.Client{
 		MaxConnsPerHost: 10000,
 	}
-	timeout := (1 / (config.AmountRequestPerWorker / currentWorkers)) * 1000
+	timeout := (1.0 / float64(config.AmountRequestPerWorker/currentWorkers)) * 1000
+	logrus.Info("CURRENT TIMEOUT BETWEEN REQUESTS: ", timeout)
 	for {
 		select {
 		case newRequest := <-task:
@@ -265,6 +266,7 @@ func (core *Core) startAttack(taskRunner chan RequestPayload) error {
 }
 
 func (core *Core) FormResultAttack() *rest_contracts.BomberResult {
+	logrus.Info("Stats: ", core.tahometr.Calc())
 	return &rest_contracts.BomberResult{
 		BomberIp:                core.bomberIp,
 		FormId:                  core.formId,
@@ -286,7 +288,7 @@ func (core *Core) Start(task rest_contracts.Task, wg *sync.WaitGroup) {
 		AmountTimeInSeconds:    task.Script.Config.Time,
 		AmountRequestPerWorker: task.Script.Config.Rps,
 	}
-	for ; index < task.Script.Config.Rps*task.Script.Config.Time; index++ {
+	for ; index < currentWorkers; index++ {
 		go core.runWorkers(config, taskRunner, completed, taskResult)
 	}
 	go core.resultHandler(taskResult, completed, wg)

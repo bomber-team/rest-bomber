@@ -41,8 +41,8 @@ func (core *CoreHandlers) TestSendTask(config *nats_listener.NatsConnectionConfi
 			Address:       "http://127.0.0.1:8080",
 			RequestMethod: "GET",
 			Config: &rest_contracts.ConfigurationScript{
-				Rps:  1000,
-				Time: 10,
+				Rps:  100000,
+				Time: 50,
 			},
 		},
 	}
