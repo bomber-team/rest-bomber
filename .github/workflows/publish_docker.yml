@@ -15,5 +15,5 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: github.com/bomber-team/rest-bomber
+          repository: bomber-team/rest-bomber/rest-bomber
           tag_with_ref: true
