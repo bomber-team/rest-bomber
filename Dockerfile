@@ -1,16 +1,13 @@
 #stage 1. Build Executable binary
 FROM golang:alpine as builder
 
-RUN apk update && apk add --no-cache git
-
-WORKDIR /app
+WORKDIR /user/app
 COPY . .
 
 RUN go get -d -v
 
-RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o service
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o bomber.service
 
 FROM scratch
-COPY --from=builder /app/service /
-EXPOSE 9999
-CMD ["/service"]
+COPY --from=builder /user/app/bomber.service /
+CMD ["/bomber.service"]
