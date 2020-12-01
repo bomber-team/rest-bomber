@@ -55,7 +55,7 @@ const (
 )
 
 const (
-	currentWorkers = 10
+	currentWorkers = 1000
 )
 
 const (
@@ -172,6 +172,9 @@ func (core *Core) cleanCurrentResults() {
 	core.resultTimesForRequests = []int64{}
 	core.resultsAttack = map[int32]int64{}
 	core.attackReady = false
+	core.tahometr = tachymeter.New(&tachymeter.Config{
+		Size: 500,
+	})
 }
 
 func (core *Core) PreparingData(task rest_contracts.Task) {
@@ -197,7 +200,6 @@ func (core *Core) resultHandler(resultChan chan SliceResult, completed chan bool
 	logrus.Info("All requests: ", len(core.dataAttack))
 	for {
 		newRes := <-resultChan
-		logrus.Info("Start preparing result: ", newRes)
 		countRequests++
 		saveResults.Lock()
 		if newRes.Timeout {
@@ -219,8 +221,7 @@ func (core *Core) runWorkers(config Config, task chan RequestPayload, completed 
 	cli := fasthttp.Client{
 		MaxConnsPerHost: 10000,
 	}
-	timeout := (1.0 / float64(config.AmountRequestPerWorker/currentWorkers)) * 1000
-	logrus.Info("CURRENT TIMEOUT BETWEEN REQUESTS: ", timeout)
+	timeout := (1.0 / float64(config.AmountRequestPerWorker/currentWorkers)) * 1000000000
 	for {
 		select {
 		case newRequest := <-task:
@@ -241,11 +242,11 @@ func (core *Core) runWorkers(config Config, task chan RequestPayload, completed 
 			}
 			fasthttp.ReleaseResponse(newRequest.Response)
 			fasthttp.ReleaseRequest(newRequest.Request)
-			time.Sleep(time.Duration(timeout) * time.Millisecond)
+			if durationTime.Nanoseconds() < time.Duration(timeout).Nanoseconds() {
+				time.Sleep(time.Duration(timeout) - durationTime)
+			}
 		case <-completed:
 			logrus.Info("Completed requests")
-			logrus.Info("Data tahometr: ", core.tahometr.Calc())
-
 			return
 		}
 	}

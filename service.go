@@ -58,7 +58,7 @@ func main() {
 	if err := coreHandler.InitTopicsHandlers(signalService); err != nil {
 		signalService <- helping.FATALERROR
 	}
-	coreHandler.TestSendTask(parsedConfigureService)
+	// coreHandler.TestSendTask(parsedConfigureService)
 	logrus.Info("Completed running service")
 
 	switch <-signalService {

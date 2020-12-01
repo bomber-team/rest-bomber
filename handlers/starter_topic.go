@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"sync"
+	"time"
 
 	"github.com/bomber-team/bomber-proto-contracts/golang/rest_contracts"
 	"github.com/bomber-team/rest-bomber/core"
@@ -55,10 +56,13 @@ func (handl *StarterTopicHandler) handle(message *nats.Msg) {
 		logrus.Info("Attack REady")
 		var wg sync.WaitGroup
 		wg.Add(1)
+		timeStart := time.Now()
 		handl.core.Start(paylaod, &wg)
 		wg.Wait()
+		timeEnd := time.Since(timeStart)
 		logrus.Info("Attacks completed. Start extracting data")
 		result := handl.core.FormResultAttack()
+		logrus.Info("Summary estimated time for attack: ", timeEnd.Milliseconds(), " ms")
 		marshaledData, err := result.Marshal()
 		if err != nil {
 			logrus.Error("Error marshaled result attack: ", err)
