@@ -59,7 +59,6 @@ func (handl *StarterTopicHandler) handle(message *nats.Msg) {
 		wg.Wait()
 		logrus.Info("Attacks completed. Start extracting data")
 		result := handl.core.FormResultAttack()
-		logrus.Info("Current attack result: ", result)
 		marshaledData, err := result.Marshal()
 		if err != nil {
 			logrus.Error("Error marshaled result attack: ", err)

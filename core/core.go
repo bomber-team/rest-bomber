@@ -11,6 +11,7 @@ import (
 	"github.com/bomber-team/bomber-proto-contracts/golang/system"
 	"github.com/bomber-team/rest-bomber/generators"
 	"github.com/bomber-team/rest-bomber/nats_listener"
+	"github.com/jamiealquiza/tachymeter"
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"github.com/valyala/fasthttp"
@@ -20,7 +21,7 @@ type Core struct {
 	publisher              *nats_listener.Publisher
 	config                 *nats_listener.NatsConnectionConfiguration
 	currentStatusBomber    system.StatusBomber
-	dataAttack             []fasthttp.Request
+	dataAttack             []*fasthttp.Request
 	httpClient             *http.Transport
 	resultsAttack          map[int32]int64 // amount statuses per status
 	resultTimeouts         int64           // amount time out requests
@@ -28,6 +29,12 @@ type Core struct {
 	attackReady            bool            // ready for attack?
 	bomberIp               string
 	formId                 string
+	tahometr               *tachymeter.Tachymeter
+}
+
+type Config struct {
+	AmountRequestPerWorker int64
+	AmountTimeInSeconds    int64
 }
 
 var saveResults sync.Mutex
@@ -48,7 +55,7 @@ const (
 )
 
 const (
-	currentWorkers = 100
+	currentWorkers = 10
 )
 
 const (
@@ -75,12 +82,14 @@ func NewCore(conn *nats.Conn, bomberIp string) *Core {
 		httpClient:             &http.Transport{},
 		bomberIp:               bomberIp,
 		resultTimesForRequests: []int64{},
+		tahometr:               tachymeter.New(&tachymeter.Config{Size: 1000}),
 	}
 }
 
 type RequestPayload struct {
-	Request *fasthttp.Request
-	Id      int
+	Request  *fasthttp.Request
+	Response *fasthttp.Response
+	Id       int
 }
 
 func (core *Core) preparingBody(bodyParams []*rest_contracts.BodyParam) ([]byte, error) {
@@ -158,7 +167,7 @@ func (core *Core) preparingRequest(restTask *rest_contracts.Task) (*fasthttp.Req
 }
 
 func (core *Core) cleanCurrentResults() {
-	core.dataAttack = []fasthttp.Request{}
+	core.dataAttack = []*fasthttp.Request{}
 	core.resultTimeouts = 0
 	core.resultTimesForRequests = []int64{}
 	core.resultsAttack = map[int32]int64{}
@@ -169,14 +178,14 @@ func (core *Core) PreparingData(task rest_contracts.Task) {
 	core.cleanCurrentResults()
 	var index int64 = 0
 	amountRequests := task.Script.Config.Rps * task.Script.Config.Time
-	resultSliceRequests := make([]fasthttp.Request, amountRequests)
+	resultSliceRequests := make([]*fasthttp.Request, amountRequests)
 	for ; index < amountRequests; index++ {
 		newRequest, errFormRequest := core.preparingRequest(&task)
 		if errFormRequest != nil {
 			logrus.Error("Can not forming request: ", errFormRequest)
 			continue
 		}
-		resultSliceRequests[index] = *newRequest
+		resultSliceRequests[index] = newRequest
 	}
 	core.dataAttack = resultSliceRequests
 	core.formId = task.FormId
@@ -206,13 +215,17 @@ func (core *Core) resultHandler(resultChan chan SliceResult, completed chan bool
 	}
 }
 
-func (core *Core) runWorkers(task chan RequestPayload, completed chan bool, resultChan chan SliceResult) {
+func (core *Core) runWorkers(config Config, task chan RequestPayload, completed chan bool, resultChan chan SliceResult) {
+	cli := fasthttp.Client{
+		MaxConnsPerHost: 10000,
+	}
+	timeout := (1 / (config.AmountRequestPerWorker / currentWorkers)) * 1000
 	for {
 		select {
 		case newRequest := <-task:
-			resp := fasthttp.AcquireResponse()
 			timeStart := time.Now()
-			if err := fasthttp.Do(newRequest.Request, resp); err != nil {
+
+			if err := cli.Do(newRequest.Request, newRequest.Response); err != nil {
 				logrus.Error("Error while request: ", err)
 				resultChan <- SliceResult{
 					Timeout: true,
@@ -220,23 +233,32 @@ func (core *Core) runWorkers(task chan RequestPayload, completed chan bool, resu
 				continue
 			}
 			durationTime := time.Since(timeStart)
+			core.tahometr.AddTime(durationTime)
 			resultChan <- SliceResult{
-				Status:      resp.StatusCode(),
+				Status:      newRequest.Response.StatusCode(),
 				TimeElapsed: durationTime.Nanoseconds(),
 			}
+			fasthttp.ReleaseResponse(newRequest.Response)
+			fasthttp.ReleaseRequest(newRequest.Request)
+			time.Sleep(time.Duration(timeout) * time.Millisecond)
 		case <-completed:
 			logrus.Info("Completed requests")
+			logrus.Info("Data tahometr: ", core.tahometr.Calc())
+
 			return
 		}
 	}
 }
 
+// func (core *Core) dispatcherRequest(taskrequest chan RequestPayload, completed chan bool)
+
 func (core *Core) startAttack(taskRunner chan RequestPayload) error {
 	core.currentStatusBomber = system.StatusBomber_WORKING
 	for index, request := range core.dataAttack {
 		taskRunner <- RequestPayload{
-			Request: &request,
-			Id:      index,
+			Request:  request,
+			Response: fasthttp.AcquireResponse(),
+			Id:       index,
 		}
 	}
 	return nil
@@ -253,18 +275,26 @@ func (core *Core) FormResultAttack() *rest_contracts.BomberResult {
 }
 
 func (core *Core) Start(task rest_contracts.Task, wg *sync.WaitGroup) {
+	core.tahometr = tachymeter.New(&tachymeter.Config{
+		Size: int(task.Script.Config.Rps * task.Script.Config.Time),
+	})
 	taskRunner := make(chan RequestPayload, currentWorkers)
 	completed := make(chan bool)
 	taskResult := make(chan SliceResult, currentWorkers)
 	var index int64 = 0
+	config := Config{
+		AmountTimeInSeconds:    task.Script.Config.Time,
+		AmountRequestPerWorker: task.Script.Config.Rps,
+	}
 	for ; index < task.Script.Config.Rps*task.Script.Config.Time; index++ {
-		go core.runWorkers(taskRunner, completed, taskResult)
+		go core.runWorkers(config, taskRunner, completed, taskResult)
 	}
 	go core.resultHandler(taskResult, completed, wg)
 	core.startAttack(taskRunner)
 	logrus.Info("Attack was started")
 	<-completed
 	logrus.Info("Attack was completed")
+
 }
 
 func (core *Core) InitializeService() {

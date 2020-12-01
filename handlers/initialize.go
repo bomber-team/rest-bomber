@@ -38,11 +38,11 @@ func (core *CoreHandlers) TestSendTask(config *nats_listener.NatsConnectionConfi
 			Body:          []*rest_contracts.BodyParam{},
 		},
 		Script: &rest_contracts.RestScript{
-			Address:       "http://localhost:8080/",
+			Address:       "http://127.0.0.1:8080",
 			RequestMethod: "GET",
 			Config: &rest_contracts.ConfigurationScript{
-				Rps:  10,
-				Time: 1,
+				Rps:  1000,
+				Time: 10,
 			},
 		},
 	}
