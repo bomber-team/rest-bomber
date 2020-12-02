@@ -3,7 +3,7 @@ module github.com/bomber-team/rest-bomber
 go 1.15
 
 require (
-	github.com/bomber-team/bomber-proto-contracts/golang v0.2.6
+	github.com/bomber-team/bomber-proto-contracts/golang v0.2.14
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/uuid v1.1.2

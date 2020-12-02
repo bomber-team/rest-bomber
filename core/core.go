@@ -55,7 +55,7 @@ const (
 )
 
 const (
-	currentWorkers = 1000
+	currentWorkers = 100
 )
 
 const (
@@ -197,7 +197,7 @@ func (core *Core) PreparingData(task rest_contracts.Task) {
 
 func (core *Core) resultHandler(resultChan chan SliceResult, completed chan bool, wg *sync.WaitGroup) {
 	var countRequests int = 0
-	logrus.Info("All requests: ", len(core.dataAttack))
+	logrus.Debug("All requests: ", len(core.dataAttack))
 	for {
 		newRes := <-resultChan
 		countRequests++
@@ -246,7 +246,7 @@ func (core *Core) runWorkers(config Config, task chan RequestPayload, completed 
 				time.Sleep(time.Duration(timeout) - durationTime)
 			}
 		case <-completed:
-			logrus.Info("Completed requests")
+			logrus.Debug("Completed requests")
 			return
 		}
 	}
@@ -294,9 +294,9 @@ func (core *Core) Start(task rest_contracts.Task, wg *sync.WaitGroup) {
 	}
 	go core.resultHandler(taskResult, completed, wg)
 	core.startAttack(taskRunner)
-	logrus.Info("Attack was started")
+	logrus.Debug("Attack was started")
 	<-completed
-	logrus.Info("Attack was completed")
+	logrus.Debug("Attack was completed")
 
 }
 
@@ -309,7 +309,7 @@ func (core *Core) handlingChangeStatusBomber() {
 	for {
 		time.Sleep(time.Second * 5)
 		if currentStatus != core.currentStatusBomber {
-			logrus.Info("Handled changing current status worker: ", core.currentStatusBomber.String())
+			logrus.Debug("Handled changing current status worker: ", core.currentStatusBomber.String())
 			core.changeStatusBomber(core.currentStatusBomber)
 			currentStatus = core.currentStatusBomber
 		}
@@ -317,7 +317,7 @@ func (core *Core) handlingChangeStatusBomber() {
 }
 
 func (core *Core) gracefullDownService() {
-	logrus.Info("Graceful down service")
+	logrus.Debug("Graceful down service")
 	core.changeStatusBomber(system.StatusBomber_DOWN)
 }
 

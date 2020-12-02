@@ -53,16 +53,17 @@ func (handl *StarterTopicHandler) handle(message *nats.Msg) {
 
 	logrus.Info("Starting checking reading for attack: ", paylaod.FormId)
 	if handl.core.CheckReady() {
-		logrus.Info("Attack REady")
+		logrus.Debug("Attack REady")
 		var wg sync.WaitGroup
 		wg.Add(1)
 		timeStart := time.Now()
 		handl.core.Start(paylaod, &wg)
 		wg.Wait()
 		timeEnd := time.Since(timeStart)
-		logrus.Info("Attacks completed. Start extracting data")
+		logrus.Debug("Attacks completed. Start extracting data")
 		result := handl.core.FormResultAttack()
-		logrus.Info("Summary estimated time for attack: ", timeEnd.Milliseconds(), " ms")
+		result.ElapsedTimeAttack = timeEnd.Milliseconds()
+		logrus.Debug("Summary estimated time for attack: ", timeEnd.Milliseconds(), " ms")
 		marshaledData, err := result.Marshal()
 		if err != nil {
 			logrus.Error("Error marshaled result attack: ", err)
