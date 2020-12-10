@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"net"
-	"os"
+	"errors"
 
 	"github.com/bomber-team/bomber-proto-contracts/golang/rest_contracts"
 	"github.com/bomber-team/rest-bomber/core"
 	"github.com/bomber-team/rest-bomber/nats_listener"
+	"github.com/bomber-team/rest-bomber/tools"
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 )
@@ -17,15 +17,22 @@ type CoreHandlers struct {
 	config          *nats_listener.NatsConnectionConfiguration
 }
 
-func NewCoreHandlers(connection *nats.Conn, core *core.Core, config *nats_listener.NatsConnectionConfiguration) (*CoreHandlers, error) {
+func NewCoreHandlers(core *core.Core) (*CoreHandlers, error) {
+
 	return &CoreHandlers{
-		connection: connection,
+		connection: core.GetConnection(),
 		currentHandlers: []IHandlerTopic{
-			newTaskTopicHandler(connection, core, config),
-			newStarterTaskTopicHandler(connection, core, config),
+			newTaskTopicHandler(core.GetConnection(), core, core.GetConfig()),
+			newStarterTaskTopicHandler(core.GetConnection(), core, core.GetConfig()),
 		},
+		config: core.GetConfig(),
 	}, nil
 }
+
+const (
+	bomberInitTopic = "bombers.server.init_bomber"
+	bomberDownTopic = "bombers.server.delete"
+)
 
 func (core *CoreHandlers) TestSendTask(config *nats_listener.NatsConnectionConfiguration) error {
 	data := rest_contracts.Task{
@@ -55,27 +62,30 @@ func (core *CoreHandlers) TestSendTask(config *nats_listener.NatsConnectionConfi
 	return err
 }
 
-func (core *CoreHandlers) InitBomber(config *nats_listener.NatsConnectionConfiguration) error {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		os.Stderr.WriteString("Oops: " + err.Error() + "\n")
-		os.Exit(1)
-	}
-	result := ""
-	for _, a := range addrs {
-		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				result = ipnet.IP.To4().String()
-			}
+func (core *CoreHandlers) InitBomber() error {
+	countTry := 0
+	for {
+		if countTry == 10 {
+			return errors.New("Can not initialize bomber in server")
 		}
+		errInit := core.initBomber()
+		if errInit != nil {
+			countTry++
+			continue
+		}
+		break
 	}
+	return nil
+}
+
+func (core *CoreHandlers) initBomber() error {
 	res := rest_contracts.InitBomberPayload{
-		BomberIp: result,
-		BomberId: config.CurrentServiceID,
+		BomberIp: tools.InitIp(),
+		BomberId: core.config.CurrentServiceID,
 	}
 	data, _ := res.Marshal()
 
-	err = nats_listener.NewPublisher(core.connection).PublishNewMessage("bombers.server.init_bomber", data)
+	err := nats_listener.NewPublisher(core.connection).PublishNewMessage(bomberInitTopic, data)
 	if err != nil {
 		logrus.Error("Error while init bomber: ", err)
 	}
@@ -91,4 +101,16 @@ func (core *CoreHandlers) InitTopicsHandlers(signal chan int) error {
 	}
 	logrus.Info("Completed configuring topic handlers")
 	return nil
+}
+
+func (core *CoreHandlers) ShutdownToServer() {
+	res := rest_contracts.InitBomberPayload{
+		BomberIp: tools.InitIp(),
+		BomberId: core.config.CurrentServiceID,
+	}
+	data, _ := res.Marshal()
+	err := nats_listener.NewPublisher(core.connection).PublishNewMessage(bomberDownTopic, data)
+	if err != nil {
+		logrus.Error("Error while send deleting bomber from server: ", err)
+	}
 }

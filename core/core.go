@@ -11,6 +11,7 @@ import (
 	"github.com/bomber-team/bomber-proto-contracts/golang/system"
 	"github.com/bomber-team/rest-bomber/generators"
 	"github.com/bomber-team/rest-bomber/nats_listener"
+	"github.com/bomber-team/rest-bomber/tools"
 	"github.com/jamiealquiza/tachymeter"
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
@@ -18,6 +19,7 @@ import (
 )
 
 type Core struct {
+	connection             *nats.Conn
 	publisher              *nats_listener.Publisher
 	config                 *nats_listener.NatsConnectionConfiguration
 	currentStatusBomber    system.StatusBomber
@@ -75,15 +77,36 @@ func createHTTPClient() *http.Client {
 	return client
 }
 
-func NewCore(conn *nats.Conn, bomberIp string) *Core {
+func NewCore() *Core {
+	parsedConfigureService, errParsing := nats_listener.ParseConfiguration()
+	if errParsing != nil {
+		logrus.Error("can not parsed configuration: ", errParsing)
+		panic(errParsing)
+	}
+	parsedConfigureService.CorrectedGeneratingHandlerName()
+	connection, errConnection := nats_listener.CreateNewConnectionToNats(parsedConfigureService)
+	if errConnection != nil {
+		logrus.Error("Can not connected to nats: ", errConnection)
+		panic(errConnection)
+	}
+
 	return &Core{
-		publisher:              nats_listener.NewPublisher(conn),
+		connection:             connection,
+		publisher:              nats_listener.NewPublisher(connection),
 		currentStatusBomber:    system.StatusBomber_UP,
 		httpClient:             &http.Transport{},
-		bomberIp:               bomberIp,
+		bomberIp:               tools.InitIp(),
 		resultTimesForRequests: []int64{},
 		tahometr:               tachymeter.New(&tachymeter.Config{Size: 1000}),
 	}
+}
+
+func (core *Core) GetConnection() *nats.Conn {
+	return core.connection
+}
+
+func (core *Core) GetConfig() *nats_listener.NatsConnectionConfiguration {
+	return core.config
 }
 
 type RequestPayload struct {
