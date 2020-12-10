@@ -62,8 +62,8 @@ func (handl *StarterTopicHandler) handle(message *nats.Msg) {
 		timeEnd := time.Since(timeStart)
 		logrus.Debug("Attacks completed. Start extracting data")
 		result := handl.core.FormResultAttack()
-		result.ElapsedTimeAttack = timeEnd.Milliseconds()
-		logrus.Debug("Summary estimated time for attack: ", timeEnd.Milliseconds(), " ms")
+		result.ElapsedTimeAttack = timeEnd.Nanoseconds()
+		logrus.Debug("Summary estimated time for attack: ", timeEnd.Nanoseconds(), " ns")
 		marshaledData, err := result.Marshal()
 		if err != nil {
 			logrus.Error("Error marshaled result attack: ", err)
