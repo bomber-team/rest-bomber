@@ -18,7 +18,6 @@ type CoreHandlers struct {
 }
 
 func NewCoreHandlers(core *core.Core) (*CoreHandlers, error) {
-
 	return &CoreHandlers{
 		connection: core.GetConnection(),
 		currentHandlers: []IHandlerTopic{
@@ -48,8 +47,8 @@ func (core *CoreHandlers) TestSendTask(config *nats_listener.NatsConnectionConfi
 			Address:       "http://127.0.0.1:8080",
 			RequestMethod: "GET",
 			Config: &rest_contracts.ConfigurationScript{
-				Rps:  100000,
-				Time: 50,
+				Rps:  10,
+				Time: 100,
 			},
 		},
 	}

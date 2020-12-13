@@ -44,7 +44,6 @@ func main() {
 		signalService <- helping.FATALERROR
 	}
 	logrus.Info("Completed running service")
-
 	sigOs := make(chan os.Signal, 1)
 	signal.Notify(sigOs, syscall.SIGINT, syscall.SIGTERM)
 	select {

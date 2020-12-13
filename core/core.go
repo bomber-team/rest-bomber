@@ -57,7 +57,7 @@ const (
 )
 
 const (
-	currentWorkers = 100
+	currentWorkers = 10
 )
 
 const (
@@ -98,6 +98,7 @@ func NewCore() *Core {
 		bomberIp:               tools.InitIp(),
 		resultTimesForRequests: []int64{},
 		tahometr:               tachymeter.New(&tachymeter.Config{Size: 1000}),
+		config:                 parsedConfigureService,
 	}
 }
 
