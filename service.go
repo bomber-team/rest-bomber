@@ -36,7 +36,7 @@ func main() {
 		logrus.Panic("Can not initialize consuming handler")
 	}
 
-	core.InitializeService()
+	coreHandler.InitBomber()
 
 	signalService := make(chan int)
 

@@ -28,6 +28,7 @@ github.com/bomber-team/bomber-proto-contracts/golang v0.2.13 h1:keMmLTv/3yKTmvQ2
 github.com/bomber-team/bomber-proto-contracts/golang v0.2.13/go.mod h1:TR4fcXJGbB0RrXT+HQuQwJYliES4T5Bx+m3H0PguM+E=
 github.com/bomber-team/bomber-proto-contracts/golang v0.2.14 h1:N39OGuf3gGs/NcoWtTv8SwydChtwpXENsfWTQrvqAm0=
 github.com/bomber-team/bomber-proto-contracts/golang v0.2.14/go.mod h1:TR4fcXJGbB0RrXT+HQuQwJYliES4T5Bx+m3H0PguM+E=
+github.com/bomber-team/bomber-proto-contracts/golang v0.2.15/go.mod h1:TR4fcXJGbB0RrXT+HQuQwJYliES4T5Bx+m3H0PguM+E=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
